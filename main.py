@@ -3,13 +3,22 @@ from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 
-@register("astrbot_plugin_chehui, "Jinhong270", "消息撤回插件", "1.0.0")
+@register("astrbot_plugin_chehui", "Jinhong270", "消息撤回插件", "1.0.0")
 class RecallPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
 
     @filter.command("撤回")
     async def recall(self, event: AstrMessageEvent):
+        async for result in self._do_recall(event):
+            yield result
+
+    @filter.command("chehui")
+    async def chehui(self, event: AstrMessageEvent):
+        async for result in self._do_recall(event):
+            yield result
+
+    async def _do_recall(self, event: AstrMessageEvent):
         if event.get_group_id() is None:
             yield event.plain_result("此命令仅支持群聊")
             return
