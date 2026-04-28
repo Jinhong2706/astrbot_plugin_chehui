@@ -1,6 +1,6 @@
 name: astrbot_plugin_chehui
 display_name: "消息撤回"
-description: "撤回机器人自己最近发送的消息。使用：撤回 [数量]"
+description: "撤回机器人自己最近发送的消息。使用：撤回 [数量] 或 chehui [数量]"
 author: "Jinhong270"
 version: "1.0.0"
 repo: "https://github.com/Jinhong270/astrbot_plugin_chehui"
