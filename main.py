@@ -38,7 +38,7 @@ class RecallPlugin(Star):
                 break
 
         if target_qq and not event.is_admin():
-            yield event.plain_result("权限不足，仅群管理员可撤回他人消息")
+            yield event.plain_result("权限不足，仅bot管理员可撤回他人消息")
             return
 
         text = ""
