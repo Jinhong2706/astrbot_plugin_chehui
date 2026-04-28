@@ -34,9 +34,9 @@ class RecallPlugin(Star):
                 num = int(parts[1])
             except ValueError:
                 pass
-        num = max(1, min(num, 50))
+        num = max(1, min(num, 200))
 
-        fetch_count = min(num * 3, 100)
+        fetch_count = min(num * 3, 500)
         try:
             result = await event.bot.call_action(
                 "get_group_msg_history",
