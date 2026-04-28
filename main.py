@@ -45,7 +45,7 @@ class RecallPlugin(Star):
             )
             messages = result.get("messages", []) if isinstance(result, dict) else []
         except Exception:
-            yield event.plain_result("获取消息历史失败，请确认适配器支持历史记录 API")
+            yield event.plain_result("获取消息历史失败，请确认适配器为aiocqhttp")
             return
 
         if not messages:
