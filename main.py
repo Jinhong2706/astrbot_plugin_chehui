@@ -60,7 +60,7 @@ class RecallPlugin(Star):
                 count=fetch_count
             )
         except Exception:
-            yield event.plain_result("获取消息历史失败")
+            yield event.plain_result("获取历史消息失败，请确认适配器支持历史消息 API")
             return
 
         messages = history.get('messages', [])
