@@ -1,0 +1,9 @@
+name: astrbot_plugin_chehui
+display_name: "消息撤回"
+description: "撤回机器人自己最近发送的消息。使用：撤回 [数量]"
+author: "Your Name"
+version: "1.0.0"
+repo: "https://github.com/YourName/astrbot_plugin_recall"
+astrbot_version: ">=4.16,<5"
+support_platforms:
+  - aiocqhttp
