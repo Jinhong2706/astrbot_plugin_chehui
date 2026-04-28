@@ -94,7 +94,7 @@ class RecallPlugin(Star):
                     permission_fail += 1
                     logger.warning(f"撤回他人消息失败，可能权限不足: {e}")
                 else:
-                    logger.warning(f"撤回bot消息失败: {e}")
+                    logger.warning(f"撤回自己消息失败: {e}")
                 continue
 
         if target_qq:
@@ -102,7 +102,7 @@ class RecallPlugin(Star):
                 yield event.plain_result("撤回失败，请检查机器人是否具有管理员权限")
             else:
                 yield event.plain_result(
-                    f"已撤回 {success} 条该用户消息"
+                    f"已从 @{target_qq} 的 {num} 条消息中撤回 {success} 条"
                     + (f"，{permission_fail} 条因权限不足失败" if permission_fail else "")
                 )
         else:
