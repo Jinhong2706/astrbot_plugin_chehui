@@ -37,6 +37,10 @@ class RecallPlugin(Star):
                 target_qq = str(seg.qq)
                 break
 
+        if target_qq and not event.is_admin():
+            yield event.plain_result("权限不足，仅群管理员可撤回他人消息")
+            return
+
         text = ""
         for seg in segments:
             if isinstance(seg, Plain):
@@ -55,7 +59,7 @@ class RecallPlugin(Star):
             )
             messages = result.get("messages", []) if isinstance(result, dict) else []
         except Exception:
-            yield event.plain_result("获取消息历史失败，请确认适配器为aiocqhttp")
+            yield event.plain_result("获取消息历史失败，请确认适配器支持历史记录 API")
             return
 
         if not messages:
@@ -90,12 +94,12 @@ class RecallPlugin(Star):
                     permission_fail += 1
                     logger.warning(f"撤回他人消息失败，可能权限不足: {e}")
                 else:
-                    logger.warning(f"撤回自己消息失败: {e}")
+                    logger.warning(f"撤回bot消息失败: {e}")
                 continue
 
         if target_qq:
             if success == 0:
-                yield event.plain_result("权限不足，无法撤回该成员消息")
+                yield event.plain_result("撤回失败，请检查机器人是否具有管理员权限")
             else:
                 yield event.plain_result(
                     f"已撤回 {success} 条该用户消息"
