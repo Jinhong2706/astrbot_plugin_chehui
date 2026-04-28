@@ -24,7 +24,7 @@ class RecallPlugin(Star):
             return
 
         group_id = event.get_group_id()
-        self_id = event.get_self_id()
+        self_id = str(event.get_self_id())
 
         msg = event.message_str.strip()
         parts = msg.split(maxsplit=1)
@@ -36,49 +36,40 @@ class RecallPlugin(Star):
                 pass
         num = max(1, min(num, 50))
 
-        raw = event.message_obj.raw_message
-        message_id = raw.get('message_id')
-        current_seq = raw.get('message_seq')
-        if current_seq is None and message_id:
-            try:
-                msg_data = await event.adapter.call_api('get_msg', message_id=message_id)
-                current_seq = msg_data.get('message_seq')
-            except Exception:
-                yield event.plain_result("获取消息序号失败")
-                return
-
-        if current_seq is None:
-            yield event.plain_result("无法获取消息序号")
-            return
-
-        fetch_count = min(num * 2, 100)
+        fetch_count = min(num * 3, 100)
         try:
-            history = await event.adapter.call_api(
-                'get_group_msg_history',
-                group_id=group_id,
-                message_seq=current_seq - 1,
+            result = await event.bot.call_action(
+                "get_group_msg_history",
+                group_id=int(group_id),
                 count=fetch_count
             )
+            messages = result.get("messages", []) if isinstance(result, dict) else []
         except Exception:
-            yield event.plain_result("获取历史消息失败，请确认适配器支持历史消息 API")
+            yield event.plain_result("获取消息历史失败，请确认适配器支持历史记录 API")
             return
 
-        messages = history.get('messages', [])
         if not messages:
             yield event.plain_result("没有可撤回的消息")
             return
 
-        bot_messages = [m for m in messages if m.get('sender', {}).get('user_id') == self_id]
+        bot_messages = [
+            m for m in messages
+            if str(m.get("sender", {}).get("user_id", "")) == self_id
+        ]
+        bot_messages.sort(key=lambda x: x.get("time", 0), reverse=True)
         target_messages = bot_messages[:num]
 
         if not target_messages:
-            yield event.plain_result(f"最近 {num} 条消息中没有机器人发送的内容")
+            yield event.plain_result(f"最近 {num} 条消息中没有我发送的内容")
             return
 
         success = 0
         for msg in target_messages:
+            message_id = msg.get("message_id")
+            if not message_id:
+                continue
             try:
-                await event.adapter.call_api('delete_msg', message_id=msg['message_id'])
+                await event.bot.delete_msg(message_id=message_id)
                 success += 1
                 await asyncio.sleep(0.2)
             except Exception:
