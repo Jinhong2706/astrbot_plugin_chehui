@@ -5,15 +5,10 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 from astrbot.core.message.components import At, Plain
 
-@register("astrbot_plugin_chehui", "Jinhong270", "消息撤回插件", "1.0.1")
+@register("astrbot_plugin_chehui", "Jinhong270", "消息撤回插件", "1.0.2")
 class RecallPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        self._config = {
-            "max_recall_count": context.get_config().get("max_recall_count", 200),
-            "recall_interval": context.get_config().get("recall_interval", 0.2),
-            "require_admin_permission": context.get_config().get("require_admin_permission", True)
-        }
 
     @filter.command("撤回")
     async def recall(self, event: AstrMessageEvent):
@@ -26,6 +21,11 @@ class RecallPlugin(Star):
             yield result
 
     async def _do_recall(self, event: AstrMessageEvent):
+        cfg = self.context.get_config()
+        max_recall = int(cfg.get("max_recall_count", 200))
+        interval = float(cfg.get("recall_interval", 0.2))
+        require_admin = cfg.get("require_admin_permission", True)
+
         if event.get_group_id() is None:
             yield event.plain_result("此命令仅支持群聊")
             return
@@ -43,7 +43,7 @@ class RecallPlugin(Star):
                 break
 
         if target_qq:
-            if self._config.get("require_admin_permission", True) and not event.is_admin():
+            if require_admin and not event.is_admin():
                 yield event.plain_result("权限不足，仅bot管理员可撤回他人消息")
                 return
 
@@ -54,7 +54,7 @@ class RecallPlugin(Star):
         nums = re.findall(r"\d+", text)
         if nums:
             num = int(nums[-1])
-        num = max(1, min(num, self._config["max_recall_count"]))
+        num = max(1, min(num, max_recall))
 
         fetch_count = num * 3
         try:
@@ -94,7 +94,7 @@ class RecallPlugin(Star):
             try:
                 await event.bot.delete_msg(message_id=message_id)
                 success += 1
-                await asyncio.sleep(self._config["recall_interval"])
+                await asyncio.sleep(interval)
             except Exception as e:
                 if target_qq:
                     permission_fail += 1
