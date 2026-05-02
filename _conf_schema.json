@@ -1,0 +1,22 @@
+{
+  "max_recall_count": {
+    "description": "最大撤回消息数量限制",
+    "type": "int",
+    "default": 200
+  },
+  "fetch_message_count": {
+    "description": "获取消息历史的最大数量",
+    "type": "int",
+    "default": 500
+  },
+  "recall_interval": {
+    "description": "撤回消息间隔时间（秒）",
+    "type": "float",
+    "default": 0.2
+  },
+  "require_admin_permission": {
+    "description": "撤回他人消息是否需要管理员权限",
+    "type": "bool",
+    "default": true
+  }
+}

@@ -9,6 +9,17 @@ from astrbot.core.message.components import At, Plain
 class RecallPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
+        # 加载配置
+        self.config = self.get_config()
+        
+    def get_config(self):
+        # 获取配置项，使用默认值
+        return {
+            "max_recall_count": self.context.get_config().get("max_recall_count", 200),
+            "fetch_message_count": self.context.get_config().get("fetch_message_count", 500),
+            "recall_interval": self.context.get_config().get("recall_interval", 0.2),
+            "require_admin_permission": self.context.get_config().get("require_admin_permission", True)
+        }
 
     @filter.command("撤回")
     async def recall(self, event: AstrMessageEvent):
@@ -48,9 +59,9 @@ class RecallPlugin(Star):
         nums = re.findall(r"\d+", text)
         if nums:
             num = int(nums[-1])
-        num = max(1, min(num, 200))
+        num = max(1, min(num, self.config["max_recall_count"]))
 
-        fetch_count = min(num * 3, 500)
+        fetch_count = min(num * 3, self.config["fetch_message_count"])
         try:
             result = await event.bot.call_action(
                 "get_group_msg_history",
@@ -88,7 +99,7 @@ class RecallPlugin(Star):
             try:
                 await event.bot.delete_msg(message_id=message_id)
                 success += 1
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(self.config["recall_interval"])
             except Exception as e:
                 if target_qq:
                     permission_fail += 1
