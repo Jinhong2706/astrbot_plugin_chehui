@@ -13,21 +13,11 @@ class RecallPlugin(Star):
         super().__init__(context)
 
     def get_config_from_file(self):
-        """从配置文件读取配置，适配Linux和Windows"""
         try:
-            # 获取插件目录路径
             plugin_dir = os.path.dirname(os.path.abspath(__file__))
-            
-            # 构建配置文件路径 (../../config/astrbot_plugin_chehui_config.json)
-            # 插件目录: data/plugins/astrbot_plugin_chehui/
-            # 配置目录: data/config/
             config_dir = os.path.join(plugin_dir, "..", "..", "config")
             config_path = os.path.join(config_dir, "astrbot_plugin_chehui_config.json")
-            
-            # 确保路径是绝对路径
             config_path = os.path.abspath(config_path)
-            
-            # 读取配置文件
             if os.path.exists(config_path):
                 with open(config_path, 'r', encoding='utf-8-sig') as f:
                     config = json.load(f)
@@ -50,10 +40,7 @@ class RecallPlugin(Star):
             yield result
 
     async def _do_recall(self, event: AstrMessageEvent):
-        # 从配置文件读取配置
         file_config = self.get_config_from_file()
-        
-        # 优先使用文件配置，如果没有则使用context配置
         cfg = self.context.get_config()
         default_count = int(file_config.get("default_recall_count", cfg.get("default_recall_count", 10)))
         require_admin = file_config.get("require_admin_permission", cfg.get("require_admin_permission", True))
@@ -68,7 +55,7 @@ class RecallPlugin(Star):
 
         segments = event.get_messages()
         target_qq = None
-        num = default_count  # 使用默认撤回条数
+        num = default_count
 
         for seg in segments:
             if isinstance(seg, At) and str(seg.qq) != "all":
@@ -88,7 +75,6 @@ class RecallPlugin(Star):
         if nums:
             num = int(nums[-1])
         
-        # 移除最大限制，只确保至少撤回1条
         num = max(1, num)
 
         fetch_count = num * 3
