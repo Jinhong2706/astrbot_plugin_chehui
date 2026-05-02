@@ -9,14 +9,9 @@ from astrbot.core.message.components import At, Plain
 class RecallPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        self.config = self.get_config()
-        
-    def get_config(self):
-        return {
-            "max_recall_count": self.context.get_config().get("max_recall_count", 200),
-            "recall_interval": self.context.get_config().get("recall_interval", 0.2),
-            "require_admin_permission": self.context.get_config().get("require_admin_permission", True)
-        }
+        self.config.setdefault("max_recall_count", 200)
+        self.config.setdefault("recall_interval", 0.2)
+        self.config.setdefault("require_admin_permission", True)
 
     @filter.command("撤回")
     async def recall(self, event: AstrMessageEvent):
