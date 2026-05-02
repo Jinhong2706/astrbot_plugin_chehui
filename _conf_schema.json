@@ -1,11 +1,11 @@
 {
   "default_recall_count": {
-    "description": "默认撤回消息条数（当用户未指定数量时使用）",
+    "description": "默认撤回消息条数",
     "type": "int",
     "default": 10
   },
   "recall_interval": {
-    "description": "撤回消息间隔时间（秒），避免撤回过快导致API限制",
+    "description": "撤回消息间隔时间（秒）",
     "type": "float",
     "default": 0.2
   },
