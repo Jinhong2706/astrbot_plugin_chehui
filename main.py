@@ -9,14 +9,11 @@ from astrbot.core.message.components import At, Plain
 class RecallPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        # 加载配置
         self.config = self.get_config()
         
     def get_config(self):
-        # 获取配置项，使用默认值
         return {
             "max_recall_count": self.context.get_config().get("max_recall_count", 200),
-            "fetch_message_count": self.context.get_config().get("fetch_message_count", 500),
             "recall_interval": self.context.get_config().get("recall_interval", 0.2),
             "require_admin_permission": self.context.get_config().get("require_admin_permission", True)
         }
@@ -48,9 +45,10 @@ class RecallPlugin(Star):
                 target_qq = str(seg.qq)
                 break
 
-        if target_qq and not event.is_admin():
-            yield event.plain_result("权限不足，仅bot管理员可撤回他人消息")
-            return
+        if target_qq:
+            if self.config.get("require_admin_permission", True) and not event.is_admin():
+                yield event.plain_result("权限不足，仅bot管理员可撤回他人消息")
+                return
 
         text = ""
         for seg in segments:
@@ -61,7 +59,7 @@ class RecallPlugin(Star):
             num = int(nums[-1])
         num = max(1, min(num, self.config["max_recall_count"]))
 
-        fetch_count = min(num * 3, self.config["fetch_message_count"])
+        fetch_count = num * 3
         try:
             result = await event.bot.call_action(
                 "get_group_msg_history",
