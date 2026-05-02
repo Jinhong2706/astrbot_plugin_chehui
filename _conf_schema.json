@@ -1,16 +1,16 @@
 {
-  "max_recall_count": {
-    "description": "最大撤回消息数量限制",
+  "default_recall_count": {
+    "description": "默认撤回消息条数（当用户未指定数量时使用）",
     "type": "int",
-    "default": 200
+    "default": 10
   },
   "recall_interval": {
-    "description": "撤回消息间隔时间（秒）",
+    "description": "撤回消息间隔时间（秒），避免撤回过快导致API限制",
     "type": "float",
     "default": 0.2
   },
   "require_admin_permission": {
-    "description": "撤回他人消息是否需要管理员权限",
+    "description": "撤回他人消息是否需要Astrbot管理员权限",
     "type": "bool",
     "default": true
   }

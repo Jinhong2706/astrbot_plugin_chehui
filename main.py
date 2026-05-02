@@ -5,7 +5,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 from astrbot.core.message.components import At, Plain
 
-@register("astrbot_plugin_chehui", "Jinhong270", "消息撤回插件", "1.0.2")
+@register("astrbot_plugin_chehui", "Jinhong270", "消息撤回插件", "1.0.3")
 class RecallPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -22,8 +22,7 @@ class RecallPlugin(Star):
 
     async def _do_recall(self, event: AstrMessageEvent):
         cfg = self.context.get_config()
-        max_recall = int(cfg.get("max_recall_count", 200))
-        interval = float(cfg.get("recall_interval", 0.2))
+        default_count = int(cfg.get("default_recall_count", 10))
         require_admin = cfg.get("require_admin_permission", True)
 
         if event.get_group_id() is None:
@@ -35,7 +34,7 @@ class RecallPlugin(Star):
 
         segments = event.get_messages()
         target_qq = None
-        num = 10
+        num = default_count  # 使用默认撤回条数
 
         for seg in segments:
             if isinstance(seg, At) and str(seg.qq) != "all":
@@ -54,7 +53,9 @@ class RecallPlugin(Star):
         nums = re.findall(r"\d+", text)
         if nums:
             num = int(nums[-1])
-        num = max(1, min(num, max_recall))
+        
+        # 移除最大限制，只确保至少撤回1条
+        num = max(1, num)
 
         fetch_count = num * 3
         try:
@@ -94,7 +95,7 @@ class RecallPlugin(Star):
             try:
                 await event.bot.delete_msg(message_id=message_id)
                 success += 1
-                await asyncio.sleep(interval)
+                await asyncio.sleep(cfg.get("recall_interval", 0.2))
             except Exception as e:
                 if target_qq:
                     permission_fail += 1
